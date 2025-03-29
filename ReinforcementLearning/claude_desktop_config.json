@@ -1,0 +1,266 @@
+{
+  "globalShortcut": "",
+  "mcpServers": {
+    "desktopCommander": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@wonderwhy-er/desktop-commander"
+      ]
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory@0.6.2",
+        "--db-path",
+        "/Users/rahulsawhney/Library/Application Support/Claude/memory.db"
+      ]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "claude-server": {
+      "command": "node",
+      "args": [
+        "/Users/rahulsawhney/claude-server/build/index.js"
+      ]
+    },
+    "text-editor": {
+      "command": "/opt/homebrew/bin/mcp-text-editor",
+      "args": []
+    },
+    "https://mcp.composio.dev/googlephotos/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/googlephotos/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/googlesheets/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/googlesheets/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/notion/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/notion/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/gmail/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/gmail/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/googledrive/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/googledrive/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/googlecalendar/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/googlecalendar/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/linkedin/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/linkedin/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/twitter_media/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/twitter_media/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/googlemeet/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/googlemeet/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/outlook/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/outlook/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/googlesuper/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/googlesuper/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/googletasks/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/googletasks/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/youtube/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/youtube/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/microsoft_teams/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/microsoft_teams/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/reddit/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/reddit/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/google_maps/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/google_maps/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/hackernews/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/hackernews/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/lmnt/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/lmnt/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    },
+    "https://mcp.composio.dev/semanticscholar/ashamed-scruffy-brother-69kOK-": {
+      "command": "npx",
+      "args": [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/semanticscholar/ashamed-scruffy-brother-69kOK-"
+      ],
+      "env": {
+        "npm_config_yes": "true"
+      }
+    }
+  }
+}
