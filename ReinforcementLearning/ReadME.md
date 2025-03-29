@@ -43,3 +43,22 @@
     * *Ensure your LaTeX distribution has the necessary packages (amsmath, tikz, tcolorbox, algorithm, algpseudocode, geometry, etc.) specified or implied in the prompts.*
 2.  **Merge PDFs:** Use a PDF merging tool (online service, command-line tool like `pdfunite`, or software like Adobe Acrobat) to combine the six individual PDF files (`rl_pdf_1.pdf` through `rl_pdf_6.pdf`) **in sequential order**.
 3.  **Final Output:** Save the combined document as `RL_fullNotes.pdf`. This single file will contain the complete, structured Reinforcement Learning notes covering all six topics.
+
+4.  ## Tool Use & System Configuration
+
+1.  **LaTeX Editor:**
+    * **Texifier for macOS:** This is the primary tool for compiling `.tex` files into PDFs.
+    * **Note:** Texifier is paid software. Ensure all necessary LaTeX packages and bundles are fully installed within your Texifier distribution to avoid compilation errors.
+2.  **Claude Configuration:**
+    * **MCP Config File:** Ensure the Claude MCP (Mission Control Prompting) configuration file is correctly set up to grant Claude access to the required tools (e.g., `write_file`, `edit_block`, `text-editor`) for file generation and modification. *(User: You mentioned attaching this file; ensure it's appropriately configured)*.
+3.  **System Hardware:**
+    * Macbook 16-inch
+    * Processor: M3 MAX
+    * RAM: 128GB
+    * Storage: 2TB SSD
+
+## Support & Collaboration Contact
+
+* **Troubleshooting:** If you encounter issues during the process, particularly with LaTeX compilation in Texifier or errors related to package dependencies, feel free to contact me directly via WhatsApp: `+49 173 4965614`.
+    *(Please be mindful of sharing personal contact information).*
+* **Collaboration:** If you are interested in further work, have suggestions, or wish to collaborate on this or related projects, please use the same WhatsApp number: `+49 173 4965614`.
