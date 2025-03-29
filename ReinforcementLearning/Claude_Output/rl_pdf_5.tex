@@ -1,0 +1,511 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{tcolorbox}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\title{5. Reinforcement Learning: Other Solution Methods}
+\author{Based on Sutton and Barto's Reinforcement Learning Book}
+\date{}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction to Other Solution Methods}
+
+In previous sections, we explored policy iteration and value iteration methods for solving reinforcement learning problems, which require a complete model of the environment. However, in many practical scenarios, we either don't have a complete model or it's computationally expensive to use one. In this section, we explore alternative approaches to solving reinforcement learning problems that either relax the requirement for a complete model or approach the problem from different angles.
+
+These alternative methods include:
+\begin{itemize}
+    \item Understanding the limitations of on-policy methods
+    \item Monte Carlo techniques for estimating value functions
+    \item Temporal Difference Learning, which combines ideas from Monte Carlo methods and dynamic programming
+    \item Q-Learning as an off-policy temporal difference method
+    \item Policy Gradient methods that directly optimize policy parameters
+\end{itemize}
+
+These alternative approaches are crucial for extending reinforcement learning to a wide variety of practical applications where complete models are unavailable or impractical.
+
+\section{Limitations of On-Policy Methods}
+
+On-policy methods evaluate and improve the same policy that is used to make decisions. While conceptually straightforward, this approach has several limitations:
+
+\subsection{Definition and Characteristics}
+
+On-policy methods learn the value functions and improve the policy based on actions taken according to the current policy. The key characteristic is that the policy being evaluated and the policy generating behavior are the same.
+
+\subsection{Limitations}
+
+\subsubsection{Exploration-Exploitation Tradeoff}
+
+One fundamental limitation is the exploration-exploitation tradeoff. To find the optimal policy, the agent needs to explore various states and actions. However, to maximize rewards, it should exploit its current knowledge by choosing the actions it believes are best. On-policy methods must balance these competing objectives using the same policy.
+
+For example, in $\epsilon$-greedy policies, the agent follows the greedy policy with probability $1-\epsilon$ and takes a random action with probability $\epsilon$. While this introduces exploration, it also means the policy being learned is not truly optimal but is constrained by the exploration requirements.
+
+\subsubsection{Sample Inefficiency}
+
+On-policy methods can be sample inefficient because they can only learn from data collected under the current policy. When the policy changes, previously collected experience becomes less relevant or even irrelevant for evaluating the new policy. This limitation is particularly significant in environments where data collection is expensive or time-consuming.
+
+\subsubsection{Necessity for Incremental Policy Improvement}
+
+On-policy methods typically require incremental policy improvements to ensure stability. Large policy changes can lead to drastic changes in the data distribution, making it difficult to accurately estimate value functions.
+
+\subsection{On-Policy vs. Off-Policy Learning}
+
+To address these limitations, we can use off-policy methods, which allow the agent to learn from data that was collected using a different policy (behavior policy) than the one being evaluated and improved (target policy). This separation offers more flexibility but introduces its own challenges.
+
+\section{Monte Carlo Techniques}
+
+Monte Carlo (MC) methods learn directly from complete episodes of experience without requiring a model of the environment's dynamics. They are based on averaging complete returns from episodes of experience.
+
+\subsection{Properties of Monte Carlo Methods}
+
+\begin{itemize}
+    \item Only applicable to episodic tasks (tasks with a definite ending point)
+    \item Learn from complete episodes: no bootstrapping
+    \item Can be off-policy, learning about a target policy while following a behavior policy
+    \item Do not require knowledge about environment dynamics
+    \item Simple conceptually and can handle environments with unknown dynamics
+\end{itemize}
+
+\subsection{Monte Carlo Prediction (Evaluation)}
+
+Monte Carlo prediction estimates the state-value function $v_\pi$ for a given policy $\pi$ by averaging returns observed after visits to a state.
+
+\begin{algorithm}[H]
+\caption{First-visit Monte Carlo Prediction}
+\begin{algorithmic}[1]
+\State \textbf{Input:} policy $\pi$ to be evaluated
+\State Initialize $V(s)$ for all $s \in \mathcal{S}$
+\State Initialize $Returns(s)$ as an empty list for all $s \in \mathcal{S}$
+\For{each episode}
+    \State Generate an episode following $\pi$: $S_0, A_0, R_1, S_1, A_1, \ldots, S_{T-1}, A_{T-1}, R_T$
+    \State $G \gets 0$
+    \For{$t = T-1, T-2, \ldots, 0$}
+        \State $G \gets \gamma G + R_{t+1}$
+        \If{$S_t$ appears for the first time in the episode}
+            \State Append $G$ to $Returns(S_t)$
+            \State $V(S_t) \gets average(Returns(S_t))$
+        \EndIf
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $\pi$ - policy to be evaluated
+    \item $V(s)$ - estimated value function for state $s$
+    \item $Returns(s)$ - list of returns observed after visiting state $s$
+    \item $S_t$ - state at time $t$
+    \item $A_t$ - action at time $t$
+    \item $R_t$ - reward at time $t$
+    \item $G$ - return (cumulative discounted reward)
+    \item $\gamma$ - discount factor
+    \item $T$ - final time step of the episode
+\end{itemize}
+\end{tcolorbox}
+
+The first-visit MC method estimates $v_\pi(s)$ as the average of returns following the first visits to state $s$, while the every-visit MC method averages returns following all visits to $s$.
+
+\subsection{Monte Carlo Control}
+
+Monte Carlo control methods find the optimal policy by alternating between policy evaluation and policy improvement, similar to policy iteration but using Monte Carlo methods for the evaluation step.
+
+\begin{algorithm}[H]
+\caption{Monte Carlo Control with Exploring Starts}
+\begin{algorithmic}[1]
+\State Initialize $Q(s, a)$ arbitrarily for all $s \in \mathcal{S}, a \in \mathcal{A}(s)$
+\State Initialize $\pi(s)$ arbitrarily for all $s \in \mathcal{S}$
+\State Initialize $Returns(s, a)$ as empty lists for all $s \in \mathcal{S}, a \in \mathcal{A}(s)$
+\For{each episode}
+    \State Choose $S_0 \in \mathcal{S}$ and $A_0 \in \mathcal{A}(S_0)$ such that all pairs have probability $> 0$
+    \State Generate an episode from $S_0, A_0$ following $\pi$: $S_0, A_0, R_1, \ldots, S_{T-1}, A_{T-1}, R_T$
+    \State $G \gets 0$
+    \For{$t = T-1, T-2, \ldots, 0$}
+        \State $G \gets \gamma G + R_{t+1}$
+        \If{$(S_t, A_t)$ pair appears for the first time in the episode}
+            \State Append $G$ to $Returns(S_t, A_t)$
+            \State $Q(S_t, A_t) \gets average(Returns(S_t, A_t))$
+            \State $\pi(S_t) \gets \argmax_a Q(S_t, a)$
+        \EndIf
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $Q(s, a)$ - action-value function for state $s$ and action $a$
+    \item $\pi(s)$ - policy that maps states to actions
+    \item $Returns(s, a)$ - list of returns observed after taking action $a$ in state $s$
+    \item $S_t$ - state at time $t$
+    \item $A_t$ - action at time $t$
+    \item $R_t$ - reward at time $t$
+    \item $G$ - return (cumulative discounted reward)
+    \item $\gamma$ - discount factor
+    \item $T$ - final time step of the episode
+    \item $\mathcal{S}$ - set of all states
+    \item $\mathcal{A}(s)$ - set of all actions available in state $s$
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{Off-Policy Monte Carlo Methods}
+
+Off-policy Monte Carlo methods allow learning about one policy (the target policy) while following another policy (the behavior policy). This approach addresses the exploration-exploitation tradeoff by using a separate exploratory policy for data collection.
+
+\begin{algorithm}[H]
+\caption{Off-policy Monte Carlo Prediction}
+\begin{algorithmic}[1]
+\State \textbf{Input:} target policy $\pi$ to be evaluated
+\State Initialize $V(s)$ for all $s \in \mathcal{S}$
+\State Initialize $C(s)$ to 0 for all $s \in \mathcal{S}$
+\For{each episode}
+    \State Generate an episode using behavior policy $b$: $S_0, A_0, R_1, S_1, A_1, \ldots, S_{T-1}, A_{T-1}, R_T$
+    \State $G \gets 0$
+    \State $W \gets 1$
+    \For{$t = T-1, T-2, \ldots, 0$}
+        \State $G \gets \gamma G + R_{t+1}$
+        \State $C(S_t) \gets C(S_t) + W$
+        \State $V(S_t) \gets V(S_t) + \frac{W}{C(S_t)}[G - V(S_t)]$
+        \State $W \gets W \frac{\pi(A_t|S_t)}{b(A_t|S_t)}$
+        \If{$W = 0$}
+            \State break
+        \EndIf
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $\pi$ - target policy to be evaluated
+    \item $b$ - behavior policy used to generate episodes
+    \item $V(s)$ - estimated value function for state $s$
+    \item $C(s)$ - cumulative weight for state $s$
+    \item $W$ - importance sampling weight
+    \item $S_t$ - state at time $t$
+    \item $A_t$ - action at time $t$
+    \item $R_t$ - reward at time $t$
+    \item $G$ - return (cumulative discounted reward)
+    \item $\gamma$ - discount factor
+    \item $T$ - final time step of the episode
+    \item $\pi(A_t|S_t)$ - probability of taking action $A_t$ in state $S_t$ under policy $\pi$
+    \item $b(A_t|S_t)$ - probability of taking action $A_t$ in state $S_t$ under policy $b$
+\end{itemize}
+\end{tcolorbox}
+
+The term $\frac{\pi(A_t|S_t)}{b(A_t|S_t)}$ is the importance sampling ratio, which corrects for the difference in action selection probabilities between the target and behavior policies.
+
+\section{Temporal Difference Learning}
+
+Temporal Difference (TD) learning combines ideas from Monte Carlo methods and dynamic programming. Like Monte Carlo methods, TD methods can learn directly from experience without a model of the environment. Like DP, TD methods update estimates based in part on other learned estimates, without waiting for a final outcome (they bootstrap).
+
+\subsection{TD Prediction}
+
+The simplest TD method, known as TD(0), updates the value estimate for a state based on the observed reward and the estimated value of the next state:
+
+\begin{equation}
+V(S_t) \leftarrow V(S_t) + \alpha [R_{t+1} + \gamma V(S_{t+1}) - V(S_t)]
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $V(S_t)$ - estimated value of state $S_t$
+    \item $R_{t+1}$ - reward received after taking action in state $S_t$
+    \item $S_{t+1}$ - next state after taking action in state $S_t$
+    \item $\alpha$ - step-size parameter (learning rate)
+    \item $\gamma$ - discount factor
+    \item $R_{t+1} + \gamma V(S_{t+1}) - V(S_t)$ - TD error, often denoted as $\delta_t$
+\end{itemize}
+\end{tcolorbox}
+
+The term $R_{t+1} + \gamma V(S_{t+1})$ is called the TD target, and $R_{t+1} + \gamma V(S_{t+1}) - V(S_t)$ is called the TD error.
+
+\begin{algorithm}[H]
+\caption{Tabular TD(0) for estimating $v_\pi$}
+\begin{algorithmic}[1]
+\State \textbf{Input:} policy $\pi$ to be evaluated
+\State \textbf{Parameters:} step size $\alpha \in (0, 1]$
+\State Initialize $V(s)$ arbitrarily for all $s \in \mathcal{S}$
+\For{each episode}
+    \State Initialize $S$
+    \For{each step of episode}
+        \State Take action $A$ according to $\pi(·|S)$
+        \State Observe reward $R$ and next state $S'$
+        \State $V(S) \leftarrow V(S) + \alpha [R + \gamma V(S') - V(S)]$
+        \State $S \leftarrow S'$
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Advantages of TD Learning}
+
+TD learning has several advantages over both Monte Carlo methods and dynamic programming:
+
+\begin{itemize}
+    \item TD methods don't require a model of the environment (unlike DP)
+    \item TD methods can learn online, after each step, without waiting for the end of an episode (unlike MC)
+    \item TD methods can learn from incomplete episodes, making them applicable to continuing (non-terminating) tasks
+    \item TD methods are generally more sample efficient than Monte Carlo methods
+\end{itemize}
+
+\subsection{SARSA: On-Policy TD Control}
+
+SARSA (State-Action-Reward-State-Action) is an on-policy TD control method that learns action-value functions. The update rule for SARSA is:
+
+\begin{equation}
+Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha [R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) - Q(S_t, A_t)]
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $Q(S_t, A_t)$ - estimated value of taking action $A_t$ in state $S_t$
+    \item $R_{t+1}$ - reward received after taking action $A_t$ in state $S_t$
+    \item $S_{t+1}$ - next state after taking action $A_t$ in state $S_t$
+    \item $A_{t+1}$ - next action taken in state $S_{t+1}$
+    \item $\alpha$ - step-size parameter (learning rate)
+    \item $\gamma$ - discount factor
+\end{itemize}
+\end{tcolorbox}
+
+\begin{algorithm}[H]
+\caption{SARSA (on-policy TD control) for estimating $Q \approx q_*$}
+\begin{algorithmic}[1]
+\State \textbf{Parameters:} step size $\alpha \in (0, 1]$, small $\epsilon > 0$
+\State Initialize $Q(s, a)$ arbitrarily for all $s \in \mathcal{S}$, $a \in \mathcal{A}(s)$
+\For{each episode}
+    \State Initialize $S$
+    \State Choose $A$ from $S$ using policy derived from $Q$ (e.g., $\epsilon$-greedy)
+    \For{each step of episode}
+        \State Take action $A$, observe $R$, $S'$
+        \State Choose $A'$ from $S'$ using policy derived from $Q$ (e.g., $\epsilon$-greedy)
+        \State $Q(S, A) \leftarrow Q(S, A) + \alpha [R + \gamma Q(S', A') - Q(S, A)]$
+        \State $S \leftarrow S'$
+        \State $A \leftarrow A'$
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\section{Q-Learning}
+
+Q-Learning is an off-policy TD control method. It directly approximates the optimal action-value function, $q_*$, independent of the policy being followed.
+
+\subsection{Q-Learning Algorithm}
+
+The update rule for Q-Learning is:
+
+\begin{equation}
+Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha [R_{t+1} + \gamma \max_a Q(S_{t+1}, a) - Q(S_t, A_t)]
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $Q(S_t, A_t)$ - estimated value of taking action $A_t$ in state $S_t$
+    \item $R_{t+1}$ - reward received after taking action $A_t$ in state $S_t$
+    \item $S_{t+1}$ - next state after taking action $A_t$ in state $S_t$
+    \item $\max_a Q(S_{t+1}, a)$ - maximum estimated value obtainable from state $S_{t+1}$
+    \item $\alpha$ - step-size parameter (learning rate)
+    \item $\gamma$ - discount factor
+\end{itemize}
+\end{tcolorbox}
+
+\begin{algorithm}[H]
+\caption{Q-Learning (off-policy TD control) for estimating $\pi \approx \pi_*$}
+\begin{algorithmic}[1]
+\State \textbf{Parameters:} step size $\alpha \in (0, 1]$, small $\epsilon > 0$
+\State Initialize $Q(s, a)$ arbitrarily for all $s \in \mathcal{S}$, $a \in \mathcal{A}(s)$
+\For{each episode}
+    \State Initialize $S$
+    \For{each step of episode}
+        \State Choose $A$ from $S$ using policy derived from $Q$ (e.g., $\epsilon$-greedy)
+        \State Take action $A$, observe $R$, $S'$
+        \State $Q(S, A) \leftarrow Q(S, A) + \alpha [R + \gamma \max_a Q(S', a) - Q(S, A)]$
+        \State $S \leftarrow S'$
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Differences Between SARSA and Q-Learning}
+
+The key difference between SARSA and Q-Learning lies in their update targets:
+
+\begin{itemize}
+    \item SARSA uses the Q-value of the next state-action pair actually taken: $Q(S_{t+1}, A_{t+1})$, making it on-policy.
+    \item Q-Learning uses the maximum Q-value for the next state: $\max_a Q(S_{t+1}, a)$, regardless of what action is actually taken next, making it off-policy.
+\end{itemize}
+
+This means Q-Learning can learn the optimal policy even while following an exploratory policy, while SARSA learns the optimal policy subject to the constraint of the exploration strategy being used.
+
+\subsection{Expected SARSA}
+
+Expected SARSA is a variant of SARSA that uses the expected value of the next state-action pair instead of the sample:
+
+\begin{equation}
+Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha [R_{t+1} + \gamma \sum_a \pi(a|S_{t+1})Q(S_{t+1}, a) - Q(S_t, A_t)]
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $Q(S_t, A_t)$ - estimated value of taking action $A_t$ in state $S_t$
+    \item $R_{t+1}$ - reward received after taking action $A_t$ in state $S_t$
+    \item $S_{t+1}$ - next state after taking action $A_t$ in state $S_t$
+    \item $\pi(a|S_{t+1})$ - probability of taking action $a$ in state $S_{t+1}$ under policy $\pi$
+    \item $\sum_a \pi(a|S_{t+1})Q(S_{t+1}, a)$ - expected value of the next state-action pair
+    \item $\alpha$ - step-size parameter (learning rate)
+    \item $\gamma$ - discount factor
+\end{itemize}
+\end{tcolorbox}
+
+Expected SARSA can be more computationally expensive than SARSA but can reduce variance in the updates and lead to better performance in some environments.
+
+\section{Policy Gradient Methods}
+
+Policy gradient methods take a different approach by directly parameterizing the policy and updating the parameters to maximize the expected return.
+
+\subsection{Policy Parameterization}
+
+The policy is represented as a parameterized function:
+
+\begin{equation}
+\pi(a|s, \theta) = P(A_t = a | S_t = s, \theta_t = \theta)
+\end{equation}
+
+where $\theta$ is a vector of policy parameters that we adjust to optimize performance.
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $\pi(a|s, \theta)$ - probability of taking action $a$ in state $s$ under the policy parameterized by $\theta$
+    \item $\theta$ - vector of policy parameters
+    \item $A_t$ - action at time $t$
+    \item $S_t$ - state at time $t$
+    \item $\theta_t$ - policy parameters at time $t$
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{Performance Measure}
+
+The performance measure to be maximized is the expected return:
+
+\begin{equation}
+J(\theta) = \mathbb{E}_{\pi_\theta} [G_0]
+\end{equation}
+
+where $G_0$ is the return starting from the initial state.
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $J(\theta)$ - expected return under the policy parameterized by $\theta$
+    \item $\mathbb{E}_{\pi_\theta}$ - expectation over trajectories generated by following policy $\pi_\theta$
+    \item $G_0$ - return (cumulative discounted reward) starting from the initial state
+    \item $\pi_\theta$ - policy parameterized by $\theta$
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{Policy Gradient Theorem}
+
+The policy gradient theorem provides a way to compute the gradient of $J(\theta)$ without requiring differentiation of the state distribution:
+
+\begin{equation}
+\nabla_\theta J(\theta) = \mathbb{E}_{\pi_\theta} [\nabla_\theta \log \pi(A_t|S_t, \theta) \cdot G_t]
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $\nabla_\theta J(\theta)$ - gradient of the expected return with respect to policy parameters
+    \item $\mathbb{E}_{\pi_\theta}$ - expectation over trajectories generated by following policy $\pi_\theta$
+    \item $\nabla_\theta \log \pi(A_t|S_t, \theta)$ - gradient of the log probability of taking action $A_t$ in state $S_t$
+    \item $G_t$ - return (cumulative discounted reward) from time step $t$
+    \item $\pi_\theta$ - policy parameterized by $\theta$
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{REINFORCE Algorithm}
+
+REINFORCE is a Monte Carlo policy gradient method that implements the policy gradient theorem:
+
+\begin{algorithm}[H]
+\caption{REINFORCE (Monte Carlo Policy Gradient)}
+\begin{algorithmic}[1]
+\State \textbf{Parameters:} step size $\alpha > 0$
+\State Initialize policy parameters $\theta$ arbitrarily
+\For{each episode}
+    \State Generate an episode $S_0, A_0, R_1, \ldots, S_{T-1}, A_{T-1}, R_T$ following $\pi(·|·, \theta)$
+    \For{$t = 0, 1, \ldots, T-1$}
+        \State $G \gets$ return from step $t$
+        \State $\theta \gets \theta + \alpha \gamma^t G \nabla_\theta \log \pi(A_t|S_t, \theta)$
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $\theta$ - policy parameters
+    \item $\alpha$ - step-size parameter (learning rate)
+    \item $\gamma$ - discount factor
+    \item $G$ - return (cumulative discounted reward)
+    \item $\nabla_\theta \log \pi(A_t|S_t, \theta)$ - gradient of the log probability of taking action $A_t$ in state $S_t$
+    \item $S_t$ - state at time $t$
+    \item $A_t$ - action at time $t$
+    \item $R_t$ - reward at time $t$
+    \item $T$ - final time step of the episode
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{Advantages of Policy Gradient Methods}
+
+Policy gradient methods have several advantages:
+
+\begin{itemize}
+    \item They can learn stochastic policies, which is important in partially observable environments
+    \item They naturally handle continuous action spaces
+    \item They can incorporate prior knowledge by initializing the policy to specific behaviors
+    \item Convergence properties are often better than value-based methods
+    \item Function approximation is more stable with policy gradients than with value-based methods
+\end{itemize}
+
+\section{Comparison of Methods}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Method} & \textbf{Model Required} & \textbf{On/Off-Policy} & \textbf{Bootstrapping} & \textbf{Updates} \\
+\hline
+Dynamic Programming & Yes & On-policy & Yes & Sweep \\
+Monte Carlo & No & Both & No & Episode \\
+TD Learning & No & Both & Yes & Step \\
+Q-Learning & No & Off-policy & Yes & Step \\
+SARSA & No & On-policy & Yes & Step \\
+Policy Gradient & No & Typically on-policy & Varies & Episode/Step \\
+\hline
+\end{tabular}
+\caption{Comparison of Reinforcement Learning Methods}
+\end{table}
+
+\section{Conclusion}
+
+We have explored various alternative solution methods for reinforcement learning problems beyond the classical dynamic programming approaches. Each method has its strengths and weaknesses, making them suitable for different types of problems and environments.
+
+Monte Carlo methods are conceptually simple and learn directly from complete episodes, but they can only be applied to episodic tasks and may require more samples. Temporal Difference methods combine ideas from Monte Carlo and dynamic programming, allowing learning from incomplete sequences and bootstrapping from existing estimates. Q-Learning provides an off-policy approach that can learn the optimal policy while following an exploratory policy. Finally, policy gradient methods offer a direct approach to optimizing policies, which is particularly useful for continuous action spaces and stochastic policies.
+
+The choice of method depends on the specific problem characteristics, such as whether the environment is episodic or continuing, whether a model is available, and whether the state and action spaces are discrete or continuous.
+
+\end{document}

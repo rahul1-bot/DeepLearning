@@ -1,0 +1,43 @@
+## Formal Prompt for LLM: Generation of Reinforcement Learning LaTeX Notes - Topic 3
+
+**Objective:** Generate comprehensive LaTeX notes for **Topic 3: Markov Decision Processes (MDPs)**. The final output must be a single LaTeX file named `rl_pdf_3.tex`.
+
+**Core Requirements:**
+
+1.  **Content Source:** The content, including theory, equations, and notation, **must strictly adhere** to Sutton and Barto's "Reinforcement Learning: An Introduction" (2nd Edition). **No other external sources or alternative notations are permitted.** Utilize the provided `rl_cheatsheet.pdf` [cite: 286] as a mandatory reference for ensuring accurate notation and equations. Thoroughly review this cheatsheet before generating content.
+2.  **Topic Coverage:** The notes must cover **Topic 3: Markov Decision Processes (MDPs)** exactly as outlined below. This description is taken directly from the provided `RL Topic List.txt`[cite: 378]:
+    ```
+    ## 3. Markov Decision Processes (MDPs)
+    The formal mathematical framework for RL:
+    - **States, Actions, Transitions, Rewards**: The four essential components of an MDP
+    - **Formal MDP definition**: Mathematical notation and constraints that define a valid MDP
+    - **Policy definition**: How policies map states to action probabilities
+    - **Episodic vs continuing tasks**: Some tasks have clear endpoints (episodes) while others continue indefinitely
+    - **Discounted future return**: How to mathematically handle rewards that occur far in the future
+    ```
+3.  **File Structure:** The `rl_pdf_3.tex` file must contain:
+    * An **Index** listing all covered topics and subtopics from Topic 3 (as listed above).
+    * **Detailed Sections** for each subtopic, including:
+        * **Theory:** Provide extensive theoretical explanations for all major concepts and subtopics, emphasizing fundamental understanding. Explain the "why" behind formulations, not just the "what".
+        * **Equations:** Present all relevant equations using precise Sutton & Barto LaTeX notation.
+        * **Notation Overview:** Immediately following *each* equation, include a dedicated "Notation Overview" section (e.g., using a `tcolorbox` environment or similar) that clearly defines every symbol and notation used in that specific equation[cite: 286]. This is critical for clarity.
+        * **Diagrams:** Include relevant diagrams where appropriate (using TikZ or similar packages) to illustrate concepts (e.g., state transition diagram, discount factor effect). Ensure all necessary LaTeX library dependencies (e.g., `tikz`) are included in the preamble.
+4.  **Pedagogical Emphasis:** The notes should promote deep understanding of *how* and *why* these methods work and how equations are applied, rather than encouraging rote memorization.
+5.  **Tool Integration and File Output:**
+    * You have access to file system tools. **Do not show the LaTeX code in your response.**
+    * Directly write the complete `rl_pdf_3.tex` file to the specified path: `/Users/rahulsawhney/Library/CloudStorage/OneDrive-Personal/Documents/Study Documents/Sem 1-2 Rahul Side/1) Deep Learning {Compulsory}/Rahul_DL_Notes/RL/RL_final`.
+    * Use the `write_file` tool for the initial creation and population of the file.
+    * If minor modifications or corrections are needed after initial generation, use `edit_block` (or `text-editor` if `edit_block` fails) for targeted edits instead of rewriting the entire file.
+6.  **Critical Guidelines (Lessons Learned):** Adhere strictly to the following best practices derived from previous tasks (as mentioned in the background context from `RL Topic LIst.txt`):
+    * **Preparation:** Thoroughly study the Sutton & Barto reference material and the `rl_cheatsheet.pdf` [cite: 286] *before* writing to ensure correct notation and conventions from the outset.
+    * **Verification:** Verify the correctness of equations, notation, and complex components (like diagrams) *before* finalizing sections.
+    * **Efficiency:** Use targeted editing tools for modifications post-creation.
+    * **Dependencies:** Ensure all necessary LaTeX packages (esp. for diagrams like TikZ) are included.
+    * **Syntax:** Double-check LaTeX syntax, particularly for complex elements.
+    * **Transparency:** Acknowledge any uncertainties rather than providing potentially incorrect information.
+    * **Proofreading:** Conduct thorough proofreading for consistency, accuracy, and errors before completing the task.
+    * **Precision:** Follow all instructions precisely, especially regarding notation and structure.
+    * **Balance:** Strive for a balance between mathematical rigor (correct equations and notation) and intuitive explanations.
+    * **Structure:** Use clear definitions, consistent formatting (e.g., `tcolorbox` for notations), and logical flow.
+
+**Final Action:** Once the `rl_pdf_3.tex` file has been successfully written to the specified path using the appropriate tools, confirm completion and await further instructions.

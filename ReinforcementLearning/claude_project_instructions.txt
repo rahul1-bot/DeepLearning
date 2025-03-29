@@ -1,0 +1,14 @@
+**Project Context: Reinforcement Learning Notes Generation**
+
+This project involves generating detailed LaTeX notes on Reinforcement Learning topics.
+
+**Knowledge Base:**
+Please review the following uploaded files thoroughly:
+
+1.  **`RL Topic List.txt`**: Contains the structured list of topics and subtopics to be covered, along with critical guidelines and lessons learned from previous tasks.
+2.  **`rl_cheatsheet.pdf`**: A mandatory reference guide (cheat sheet) for the notation and equations from Sutton and Barto's "Reinforcement Learning: An Introduction".
+3.  **`Instructions.txt`**: Specifies fundamental requirements, including strict adherence to Sutton & Barto notation and the mandatory inclusion of a "Notation Overview" section after each equation.
+4.  **`9_DeepReinforcementLearning.pdf`**: Example lecture notes providing context on the subject matter.
+
+**Core Directive:**
+All generated content **must strictly follow** the notation, equations, and theoretical framework presented in Sutton and Barto's "Reinforcement Learning: An Introduction", using `rl_cheatsheet.pdf` for verification. Adhere precisely to the guidelines detailed in `Instructions.txt` and `RL Topic List.txt`, especially regarding notation explanation.

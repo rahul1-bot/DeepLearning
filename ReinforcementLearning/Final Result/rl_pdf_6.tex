@@ -1,0 +1,508 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usepackage{geometry}
+\usepackage{hyperref}
+
+\geometry{a4paper, margin=1in}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+}
+
+\usetikzlibrary{shapes,arrows,positioning}
+
+% Define custom commands for notation consistency
+\newcommand{\argmax}{\operatornamewithlimits{arg\,max}}
+\newcommand{\state}{s}
+\newcommand{\action}{a}
+\newcommand{\reward}{r}
+
+\title{6. Deep Reinforcement Learning}
+\author{Reinforcement Learning Notes}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Deep Reinforcement Learning}
+
+\subsection{Introduction}
+
+Reinforcement learning has shown significant success in various domains; however, traditional RL methods face challenges when dealing with high-dimensional state spaces. Deep Reinforcement Learning (DRL) addresses this limitation by combining deep neural networks with reinforcement learning techniques, allowing agents to learn directly from raw sensory inputs.
+
+The key advantage of deep reinforcement learning is its ability to automatically extract relevant features from raw input data, eliminating the need for manual feature engineering. This makes DRL particularly useful for tasks where the state space is large and complex, such as computer vision, natural language processing, and game playing.
+
+\subsection{Deep Q Learning}
+
+\subsubsection{Neural Networks for Atari Games}
+
+Deep Q-Learning was first successfully applied to Atari games by Mnih et al. (2013/2015) at DeepMind. The key innovation was using convolutional neural networks to process raw pixel inputs from Atari games and learn control policies directly from this high-dimensional sensory input.
+
+\paragraph{Input Processing}
+The input to the neural network consists of the current and three previous game frames, stacked together to provide temporal information. This allows the network to infer motion and dynamics from the static frames.
+
+\paragraph{Network Architecture}
+The Deep Q-Network (DQN) uses:
+\begin{itemize}
+    \item Convolutional layers to process the visual input
+    \item Fully-connected layers for decision making
+    \item Output layer with one node for each possible action, representing the estimated Q-value
+\end{itemize}
+
+\paragraph{Mathematical Formulation}
+The neural network approximates the action-value function $Q(s,a)$ using a parameterized function $Q(s,a;\theta)$, where $\theta$ represents the network weights.
+
+\begin{equation}
+    Q(s,a;\theta) \approx Q^*(s,a)
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $Q(s,a;\theta)$: Approximated action-value function with parameters $\theta$
+    \item $Q^*(s,a)$: Optimal action-value function
+    \item $s$: State (preprocessed game frames)
+    \item $a$: Action (game controls)
+    \item $\theta$: Neural network parameters
+\end{itemize}
+\end{tcolorbox}
+
+\subsubsection{Target Networks}
+
+A significant challenge in using neural networks for Q-learning is stability. The Q-learning update rule relies on the current estimate of the action-value function, which can lead to oscillations or divergence when function approximation is used.
+
+\paragraph{The Problem}
+The standard Q-learning update rule is:
+
+\begin{equation}
+    \theta_{t+1} = \theta_t + \alpha \left[ r_{t+1} + \gamma \max_a Q(s_{t+1},a;\theta_t) - Q(s_t,a_t;\theta_t) \right] \nabla_{\theta_t} Q(s_t,a_t;\theta_t)
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $\theta_t$: Network parameters at time $t$
+    \item $\alpha$: Learning rate
+    \item $r_{t+1}$: Reward received after taking action $a_t$ in state $s_t$
+    \item $\gamma$: Discount factor
+    \item $\max_a Q(s_{t+1},a;\theta_t)$: Maximum Q-value for the next state
+    \item $Q(s_t,a_t;\theta_t)$: Current Q-value estimate
+    \item $\nabla_{\theta_t} Q(s_t,a_t;\theta_t)$: Gradient of the Q-value with respect to the parameters
+\end{itemize}
+\end{tcolorbox}
+
+The problem is that the target $r_{t+1} + \gamma \max_a Q(s_{t+1},a;\theta_t)$ depends on the same parameters $\theta_t$ that are being updated, creating a moving target.
+
+\paragraph{The Solution: Target Network}
+To stabilize learning, DQN uses a separate target network with parameters $\theta^-$ that are periodically updated to match the online network parameters $\theta$:
+
+\begin{equation}
+    \theta_{t+1} = \theta_t + \alpha \left[ r_{t+1} + \gamma \max_a Q(s_{t+1},a;\theta^-_t) - Q(s_t,a_t;\theta_t) \right] \nabla_{\theta_t} Q(s_t,a_t;\theta_t)
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $\theta^-_t$: Target network parameters at time $t$
+    \item $Q(s_{t+1},a;\theta^-_t)$: Q-value estimated by the target network
+\end{itemize}
+\end{tcolorbox}
+
+The target network parameters $\theta^-$ are updated every $C$ steps by copying the online network parameters $\theta$, effectively fixing the target for $C$ updates:
+
+\begin{equation}
+    \theta^-_t = \theta_{t-C}
+\end{equation}
+
+This approach reduces the correlation between the target and the current estimate, leading to more stable learning.
+
+\subsubsection{Experience Replay}
+
+Another challenge in deep reinforcement learning is the correlation between consecutive samples, which can lead to inefficient learning and instability.
+
+\paragraph{The Problem}
+In standard online reinforcement learning, experiences $(s_t, a_t, r_{t+1}, s_{t+1})$ are used immediately and then discarded. This leads to:
+\begin{itemize}
+    \item Strong correlations between consecutive samples
+    \item Inefficient use of data (experiences are used only once)
+    \item Forgetting of rare but potentially important experiences
+\end{itemize}
+
+\paragraph{The Solution: Experience Replay}
+Experience replay addresses these issues by storing experiences in a replay memory and sampling from this memory for training:
+
+\begin{algorithm}
+\caption{Deep Q-Learning with Experience Replay}
+\begin{algorithmic}[1]
+\State Initialize replay memory $D$ to capacity $N$
+\State Initialize action-value function $Q$ with random weights $\theta$
+\State Initialize target action-value function $\hat{Q}$ with weights $\theta^- = \theta$
+\For{episode = 1, $M$}
+    \State Initialize sequence $s_1 = \{x_1\}$ and preprocessed sequence $\phi_1 = \phi(s_1)$
+    \For{$t = 1, T$}
+        \State With probability $\epsilon$ select a random action $a_t$
+        \State otherwise select $a_t = \argmax_a Q(\phi(s_t), a; \theta)$
+        \State Execute action $a_t$ in emulator and observe reward $r_t$ and image $x_{t+1}$
+        \State Set $s_{t+1} = s_t, a_t, x_{t+1}$ and preprocess $\phi_{t+1} = \phi(s_{t+1})$
+        \State Store transition $(\phi_t, a_t, r_t, \phi_{t+1})$ in $D$
+        \State Sample random minibatch of transitions $(\phi_j, a_j, r_j, \phi_{j+1})$ from $D$
+        \State Set $y_j = 
+            \begin{cases}
+                r_j & \text{if episode terminates at step } j+1 \\
+                r_j + \gamma \max_{a'} \hat{Q}(\phi_{j+1}, a'; \theta^-) & \text{otherwise}
+            \end{cases}$
+        \State Perform gradient descent step on $(y_j - Q(\phi_j, a_j; \theta))^2$ with respect to $\theta$
+        \State Every $C$ steps reset $\hat{Q} = Q$ (i.e., set $\theta^- = \theta$)
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $D$: Replay memory with capacity $N$
+    \item $\phi$: Preprocessing function (e.g., frame stacking, normalization)
+    \item $\epsilon$: Exploration rate for the $\epsilon$-greedy policy
+    \item $y_j$: Target value for the Q-function
+    \item $\hat{Q}$: Target network for computing target values
+\end{itemize}
+\end{tcolorbox}
+
+\paragraph{Benefits of Experience Replay}
+\begin{itemize}
+    \item Breaks correlations between consecutive samples by random sampling
+    \item More efficient use of data by reusing experiences
+    \item Smooths the training distribution over many past behaviors
+    \item Increases stability by reducing variance in updates
+\end{itemize}
+
+\subsection{AlphaGo}
+
+AlphaGo, developed by Silver et al. at DeepMind, was the first computer program to defeat a world champion in the game of Go. It combines deep neural networks with Monte Carlo tree search (MCTS) to achieve superhuman performance.
+
+\subsubsection{Challenges in Go}
+
+Go presents several unique challenges that make it significantly harder for computers than games like chess:
+
+\paragraph{High Branching Factor}
+The game of Go has approximately 250 legal moves per position, compared to about 35 for chess. This creates a much larger search space.
+
+\paragraph{Game Length}
+Go games typically involve around 150 moves, further expanding the total number of possible game states.
+
+\paragraph{Evaluation Difficulty}
+Unlike chess, evaluating Go positions is extremely challenging. As Müller (2002) noted, "No simple yet reasonable evaluation function will ever be found for Go."
+
+\paragraph{Mathematical Complexity}
+The game tree complexity of Go is estimated to be around $10^{170}$, making exhaustive search completely infeasible.
+
+\subsubsection{Monte Carlo Tree Search}
+
+Monte Carlo Tree Search (MCTS) is a key component of AlphaGo, used to explore the game tree efficiently.
+
+\paragraph{Basic MCTS Algorithm}
+The MCTS algorithm consists of four main steps:
+
+\begin{enumerate}
+    \item \textbf{Selection:} Starting from the root node, traverse the tree using a tree policy until reaching a leaf node.
+    \item \textbf{Expansion:} Add one or more child nodes to the current leaf.
+    \item \textbf{Simulation:} From the new node, simulate a complete game using a rollout policy.
+    \item \textbf{Backpropagation:} Update the value estimates of all traversed nodes based on the simulation outcome.
+\end{enumerate}
+
+\paragraph{UCT Selection Formula}
+The Upper Confidence Bound applied to Trees (UCT) formula guides the selection phase:
+
+\begin{equation}
+    a_t = \argmax_a \left( Q(s_t, a) + c \cdot \frac{\sqrt{\ln N(s_t)}}{N(s_t, a)} \right)
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $a_t$: Action selected at time $t$
+    \item $Q(s_t, a)$: Estimated value of taking action $a$ in state $s_t$
+    \item $c$: Exploration constant
+    \item $N(s_t)$: Number of times state $s_t$ has been visited
+    \item $N(s_t, a)$: Number of times action $a$ has been taken in state $s_t$
+\end{itemize}
+\end{tcolorbox}
+
+\subsubsection{Deep Neural Networks for Go}
+
+AlphaGo uses multiple deep neural networks to guide the MCTS process and evaluate positions.
+
+\paragraph{Neural Network Types}
+AlphaGo uses three different networks:
+\begin{itemize}
+    \item \textbf{Policy Network:} Suggests promising moves for tree expansion
+    \item \textbf{Value Network:} Evaluates board positions without simulation
+    \item \textbf{Rollout Policy Network:} Guides fast rollout simulations
+\end{itemize}
+
+\paragraph{Policy Network}
+The policy network $p_\sigma(a|s)$ is trained to predict expert human moves:
+
+\begin{equation}
+    p_\sigma(a|s) \approx p(a|s)
+\end{equation}
+
+Where $p(a|s)$ is the probability of an expert human player choosing action $a$ in state $s$.
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $p_\sigma(a|s)$: Policy network with parameters $\sigma$
+    \item $p(a|s)$: Expert human policy
+    \item $s$: Board position
+    \item $a$: Move
+\end{itemize}
+\end{tcolorbox}
+
+The policy network is trained in two phases:
+\begin{enumerate}
+    \item \textbf{Supervised Learning:} Training to predict expert moves from a database of human games
+    \item \textbf{Reinforcement Learning:} Further training by self-play and policy gradient methods
+\end{enumerate}
+
+\paragraph{Value Network}
+The value network $v_\theta(s)$ approximates the expected outcome from position $s$:
+
+\begin{equation}
+    v_\theta(s) \approx v^\pi(s) = \mathbb{E}[z_t | s_t = s, a_{t...T} \sim \pi]
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $v_\theta(s)$: Value network with parameters $\theta$
+    \item $v^\pi(s)$: True value function under policy $\pi$
+    \item $z_t$: Final game outcome from time $t$ (win=+1, loss=-1)
+    \item $\pi$: Policy used for self-play games
+\end{itemize}
+\end{tcolorbox}
+
+The value network is trained on positions from self-play games using the reinforcement-learned policy network, with the game outcomes as targets.
+
+\paragraph{Rollout Policy Network}
+The rollout policy is a simpler, faster network used for MCTS simulations:
+
+\begin{equation}
+    p_\psi(a|s) \approx p(a|s)
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $p_\psi(a|s)$: Rollout policy network with parameters $\psi$
+    \item $\psi$: Parameters of a linear network (much simpler than $\sigma$)
+\end{itemize}
+\end{tcolorbox}
+
+The rollout policy is designed for speed (about 1000 times faster than the policy network) at the cost of some accuracy.
+
+\subsubsection{AlphaGo's MCTS Algorithm}
+
+AlphaGo combines MCTS with the neural networks to select moves:
+
+\begin{algorithm}
+\caption{AlphaGo's MCTS Algorithm}
+\begin{algorithmic}[1]
+\Function{SearchTree}{position $s$, simulations $n$}
+    \For{$i = 1$ to $n$}
+        \State $s' \gets s$ \Comment{Copy the root position}
+        \State $path \gets \emptyset$ \Comment{Empty array of (state, action) pairs}
+        \While{$s'$ has been visited before and is not terminal}
+            \State $a \gets \argmax_a \left( Q(s', a) + u(s', a) \right)$ \Comment{Select with exploration bonus}
+            \State Append $(s', a)$ to $path$
+            \State $s' \gets$ next state after action $a$
+        \EndWhile
+        \If{$s'$ is terminal}
+            \State $v \gets$ outcome of $s'$ for the player to move in the root position
+        \ElsIf{$s'$ has not been visited before}
+            \State $P(s', \cdot) \gets p_\sigma(\cdot | s')$ \Comment{Use policy network for probabilities}
+            \State $v \gets v_\theta(s')$ \Comment{Use value network for evaluation}
+        \Else
+            \State $a \sim p_\psi(\cdot | s')$ \Comment{Sample from rollout policy}
+            \State Simulate a rollout from $s'$ until terminal state $s_T$
+            \State $v \gets$ outcome of $s_T$ for the player to move in the root position
+        \EndIf
+        \For{each $(s, a)$ in $path$}
+            \State $N(s, a) \gets N(s, a) + 1$ \Comment{Increment visit count}
+            \State $Q(s, a) \gets Q(s, a) + \frac{v - Q(s, a)}{N(s, a)}$ \Comment{Update value estimate}
+        \EndFor
+    \EndFor
+    \State \Return $\argmax_a N(s, a)$ \Comment{Return most visited action}
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $u(s, a)$: Exploration bonus based on $P(s, a)$ and visit counts
+    \item $P(s, a)$: Prior probability of selecting action $a$ in state $s$ from policy network
+    \item $N(s, a)$: Visit count for state-action pair
+    \item $Q(s, a)$: Action value estimate from search
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{AlphaGo Zero}
+
+AlphaGo Zero represents a significant advancement over the original AlphaGo by learning entirely from self-play, without using any human gameplay data.
+
+\subsubsection{Learning Without Human Knowledge}
+
+AlphaGo Zero starts from random play and learns entirely through self-play reinforcement learning. This approach offers several advantages:
+
+\begin{itemize}
+    \item Avoids human biases and limitations
+    \item Discovers novel strategies beyond human knowledge
+    \item Simplifies the training pipeline
+    \item Demonstrates the possibility of tabula rasa learning in complex domains
+\end{itemize}
+
+\subsubsection{Network Architecture}
+
+AlphaGo Zero uses a single neural network instead of the separate policy and value networks in the original AlphaGo:
+
+\begin{equation}
+    (p(a|s), v(s)) = f_\theta(s)
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $f_\theta$: Combined policy-value network with parameters $\theta$
+    \item $p(a|s)$: Policy output (probability distribution over moves)
+    \item $v(s)$: Value output (predicted game outcome)
+    \item $s$: Board position
+\end{itemize}
+\end{tcolorbox}
+
+This single network outputs both a move probability distribution and a position evaluation, with shared parameters between the policy and value components.
+
+\subsubsection{Self-Play Reinforcement Learning}
+
+The training process for AlphaGo Zero consists of three main components that operate in a continuous cycle:
+
+\paragraph{Neural Network Training}
+The network parameters $\theta$ are trained to minimize the loss:
+
+\begin{equation}
+    l = (z - v)^2 - \pi^T \log p + c\|\theta\|^2
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $z$: Game outcome (win=+1, loss=-1)
+    \item $v$: Predicted value by the network
+    \item $\pi$: Improved policy from MCTS
+    \item $p$: Policy output from the network
+    \item $c$: Regularization parameter
+    \item $\|\theta\|^2$: L2 regularization term
+\end{itemize}
+\end{tcolorbox}
+
+\paragraph{Self-Play with MCTS}
+Games are generated by self-play, with each move selected by MCTS guided by the current neural network:
+
+\begin{equation}
+    \pi(a|s) = \frac{N(s, a)^{1/\tau}}{\sum_b N(s, b)^{1/\tau}}
+\end{equation}
+
+\begin{tcolorbox}[title=Notation Overview]
+\begin{itemize}
+    \item $\pi(a|s)$: Search policy (MCTS output)
+    \item $N(s, a)$: Visit count for action $a$ in state $s$
+    \item $\tau$: Temperature parameter controlling exploration
+\end{itemize}
+\end{tcolorbox}
+
+\paragraph{Data Generation}
+Each state $s_t$ encountered during self-play is stored along with:
+\begin{itemize}
+    \item The MCTS policy $\pi_t$
+    \item The game outcome $z_t$
+\end{itemize}
+
+These data points $(s_t, \pi_t, z_t)$ are used to train the neural network, completing the reinforcement learning loop.
+
+\subsubsection{AlphaGo Zero Algorithm}
+
+\begin{algorithm}
+\caption{AlphaGo Zero Training Algorithm}
+\begin{algorithmic}[1]
+\State Initialize neural network parameters $\theta$ randomly
+\State Initialize replay buffer $D$ with capacity $N$
+\For{iteration $= 1,2,...$}
+    \For{episode $= 1,2,...,E$}
+        \State $s_1 \gets$ initial board position
+        \For{$t = 1$ until terminal state}
+            \State $\pi_t \gets$ MCTS($s_t$, $\theta$) \Comment{Run MCTS guided by neural network}
+            \State Sample action $a_t \sim \pi_t$ \Comment{Select move based on MCTS policy}
+            \State $s_{t+1} \gets$ next state after $a_t$
+        \EndFor
+        \State $z \gets$ final outcome of the game
+        \For{each step $t$ in the episode}
+            \State Store $(s_t, \pi_t, z_t)$ in $D$ where $z_t = \pm z$ depending on player
+        \EndFor
+    \EndFor
+    \State Sample mini-batch of $(s, \pi, z)$ from $D$
+    \State Update $\theta$ by gradient descent on loss $(z - v_\theta(s))^2 - \pi^T \log p_\theta(s) + c\|\theta\|^2$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Comparison with Original AlphaGo}
+
+\begin{tabular}{|p{5cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Feature} & \textbf{AlphaGo} & \textbf{AlphaGo Zero} \\
+\hline
+Training data & Human expert games + self-play & Only self-play \\
+\hline
+Neural networks & Separate policy, value, and rollout networks & Single policy-value network \\
+\hline
+Input features & Handcrafted features + raw board position & Only raw board position \\
+\hline
+MCTS rollouts & Uses fast rollout policy & No rollouts, relies on value network \\
+\hline
+Training process & Multiple stages (SL then RL) & End-to-end reinforcement learning \\
+\hline
+Performance & Defeated world champion & Stronger than all previous versions \\
+\hline
+\end{tabular}
+
+\section{Summary}
+
+Deep Reinforcement Learning represents a powerful combination of deep learning and reinforcement learning techniques. The key innovations discussed in this chapter include:
+
+\begin{itemize}
+    \item \textbf{Deep Q-Learning:} Combines Q-learning with deep neural networks, stabilized by target networks and experience replay to learn directly from high-dimensional sensory inputs.
+    
+    \item \textbf{AlphaGo:} A breakthrough system that combines deep neural networks with Monte Carlo Tree Search to master the game of Go, using separate policy and value networks trained on expert human games and self-play.
+    
+    \item \textbf{AlphaGo Zero:} A more advanced version that learns tabula rasa through pure self-play reinforcement learning, using a unified policy-value network and achieving superhuman performance without human knowledge.
+\end{itemize}
+
+These methods demonstrate the power of deep neural networks as function approximators in reinforcement learning, enabling solutions to previously intractable problems with high-dimensional state spaces. The success of these approaches has led to further advancements in robotics, game playing, and other domains requiring sequential decision making from complex sensory inputs.
+
+\section{Further Reading}
+\begin{itemize}
+    \item Mnih, V., Kavukcuoglu, K., Silver, D., et al. (2015). Human-level control through deep reinforcement learning. Nature, 518(7540), 529-533.
+    
+    \item Silver, D., Huang, A., Maddison, C. J., et al. (2016). Mastering the game of Go with deep neural networks and tree search. Nature, 529(7587), 484-489.
+    
+    \item Silver, D., Schrittwieser, J., Simonyan, K., et al. (2017). Mastering the game of Go without human knowledge. Nature, 550(7676), 354-359.
+    
+    \item Silver, D., Hubert, T., Schrittwieser, J., et al. (2017). Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm. arXiv preprint arXiv:1712.01815.
+\end{itemize}
+
+\end{document}

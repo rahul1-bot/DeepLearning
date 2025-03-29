@@ -1,0 +1,45 @@
+## Formal Prompt for LLM: Generation of Reinforcement Learning LaTeX Notes - Topic 4
+
+**Objective:** Generate comprehensive LaTeX notes for **Topic 4: Policy Iteration**. The final output must be a single LaTeX file named `rl_pdf_4.tex`.
+
+**Core Requirements:**
+
+1.  **Content Source:** The content, including theory, equations, and notation, **must strictly adhere** to Sutton and Barto's "Reinforcement Learning: An Introduction" (2nd Edition). **No other external sources or alternative notations are permitted.** Utilize the provided `rl_cheatsheet.pdf` [cite: 286] as a mandatory reference for ensuring accurate notation and equations. Thoroughly review this cheatsheet before generating content.
+2.  **Topic Coverage:** The notes must cover **Topic 4: Policy Iteration** exactly as outlined below. This description is taken directly from the provided `RL Topic List.txt`[cite: 379]:
+    ```
+    ## 4. Policy Iteration
+    Methods to find optimal policies:
+    - **State-value function V_π(s)**: Expected return when starting in state s and following policy π
+    - **Action-value function Q_π(s,a)**: Expected return from taking action a in state s, then following policy π
+    - **Optimal value functions**: The best possible value functions (V* and Q*)
+    - **Bellman equations**: Recursive relationships that define value functions
+    - **Policy evaluation**: Computing the value function for a given policy
+    - **Policy improvement theorem**: Proves that certain policy updates will always improve performance
+    ```
+3.  **File Structure:** The `rl_pdf_4.tex` file must contain:
+    * An **Index** listing all covered topics and subtopics from Topic 4 (as listed above).
+    * **Detailed Sections** for each subtopic, including:
+        * **Theory:** Provide extensive theoretical explanations for all major concepts and subtopics, emphasizing fundamental understanding. Explain the "why" behind formulations, not just the "what". Explain the relationship between policy evaluation and policy improvement.
+        * **Equations:** Present all relevant equations (especially Bellman equations for V and Q, policy evaluation updates) using precise Sutton & Barto LaTeX notation.
+        * **Notation Overview:** Immediately following *each* equation, include a dedicated "Notation Overview" section (e.g., using a `tcolorbox` environment or similar) that clearly defines every symbol and notation used in that specific equation[cite: 286]. This is critical for clarity.
+        * **Diagrams:** Include relevant diagrams where appropriate (using TikZ or similar packages) to illustrate concepts (e.g., the Generalized Policy Iteration (GPI) loop). Ensure all necessary LaTeX library dependencies (e.g., `tikz`) are included in the preamble.
+        * **Algorithms:** Include pseudocode for Policy Evaluation and Policy Iteration algorithms using standard LaTeX algorithm environments (like `algorithm` and `algpseudocode`).
+4.  **Pedagogical Emphasis:** The notes should promote deep understanding of *how* and *why* these methods work and how equations are applied, rather than encouraging rote memorization. Focus on the interplay between evaluating a policy and improving it.
+5.  **Tool Integration and File Output:**
+    * You have access to file system tools. **Do not show the LaTeX code in your response.**
+    * Directly write the complete `rl_pdf_4.tex` file to the specified path: `/Users/rahulsawhney/Library/CloudStorage/OneDrive-Personal/Documents/Study Documents/Sem 1-2 Rahul Side/1) Deep Learning {Compulsory}/Rahul_DL_Notes/RL/RL_final`.
+    * Use the `write_file` tool for the initial creation and population of the file.
+    * If minor modifications or corrections are needed after initial generation, use `edit_block` (or `text-editor` if `edit_block` fails) for targeted edits instead of rewriting the entire file.
+6.  **Critical Guidelines (Lessons Learned):** Adhere strictly to the following best practices derived from previous tasks (as mentioned in the background context from `RL Topic LIst.txt`):
+    * **Preparation:** Thoroughly study the Sutton & Barto reference material and the `rl_cheatsheet.pdf` [cite: 286] *before* writing to ensure correct notation and conventions from the outset.
+    * **Verification:** Verify the correctness of equations, notation, and complex components (like diagrams, algorithms) *before* finalizing sections.
+    * **Efficiency:** Use targeted editing tools for modifications post-creation.
+    * **Dependencies:** Ensure all necessary LaTeX packages (esp. for diagrams like TikZ, and algorithms) are included.
+    * **Syntax:** Double-check LaTeX syntax, particularly for complex elements.
+    * **Transparency:** Acknowledge any uncertainties rather than providing potentially incorrect information.
+    * **Proofreading:** Conduct thorough proofreading for consistency, accuracy, and errors before completing the task.
+    * **Precision:** Follow all instructions precisely, especially regarding notation and structure.
+    * **Balance:** Strive for a balance between mathematical rigor (correct equations and notation) and intuitive explanations.
+    * **Structure:** Use clear definitions, consistent formatting (e.g., `tcolorbox` for notations, algorithm environments), and logical flow.
+
+**Final Action:** Once the `rl_pdf_4.tex` file has been successfully written to the specified path using the appropriate tools, confirm completion and await further instructions.

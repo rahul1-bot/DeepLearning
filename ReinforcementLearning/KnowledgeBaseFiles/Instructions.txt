@@ -1,0 +1,27 @@
+**Core Instructions for Generating Reinforcement Learning LaTeX Notes**
+
+**1. Primary Source Adherence (Mandatory):**
+   - All theoretical explanations, mathematical formulations, equations, algorithms, and terminology **must strictly adhere** to Sutton and Barto's "Reinforcement Learning: An Introduction" (2nd Edition).
+   - **No external sources, alternative interpretations, or different notational conventions are permitted.** Your primary task is to accurately represent the content from this specific book.
+
+**2. Notation and Equation Verification (Mandatory):**
+   - Before using any equation or mathematical notation, you **must** consult the provided `rl_cheatsheet.pdf` file.
+   - This cheatsheet serves as the definitive quick reference for Sutton & Barto's notation. Ensure every symbol, subscript, superscript, and mathematical operator precisely matches the conventions used in the book and summarized in the cheatsheet.
+   - **Cross-reference with the cheatsheet frequently to avoid any notational errors.**
+
+**3. "Notation Overview" Section (Mandatory):**
+   - Immediately following **every** mathematical equation presented in the LaTeX notes, you **must** include a dedicated section titled "Notation Overview".
+   - This section must clearly define **every symbol** used within that specific equation (e.g., what S, A, R, V, Q, π, γ, α, ε, etc., represent in the context of that equation).
+   - Use a consistent formatting style for these sections (e.g., a `tcolorbox` environment or similar) for visual clarity. This is a critical requirement for user understanding.
+
+**4. Topic Structure and Content Guidance:**
+   - The structure, specific topics, and subtopics to be covered in each set of notes are dictated by the `RL Topic List.txt` file.
+   - Refer to `RL Topic List.txt` for the precise breakdown you need to follow for each task (e.g., for Topic 1, Topic 2, etc.).
+   - This file also contains important "Learning Points" and guidelines derived from previous tasks – review these as well to understand best practices for creating high-quality, consistent notes.
+
+**5. Supplementary Material:**
+   - The file `9_DeepReinforcementLearning.pdf` contains example lecture slides on Deep RL.
+   - You should review this file to gain context and a deeper understanding of the subject matter covered in Topic 6.
+   - However, **do not** use the notation or specific equation formulations from this PDF if they conflict in any way with Sutton & Barto or the `rl_cheatsheet.pdf`. Sutton & Barto remains the absolute authority.
+
+**Goal:** Your objective is to generate accurate, clear, and well-structured LaTeX notes (`.tex` files) for specified Reinforcement Learning topics, strictly following the content and notation of Sutton & Barto, and adhering to all formatting and structural requirements outlined here and in `RL Topic List.txt`.
